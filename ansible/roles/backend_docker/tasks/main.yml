@@ -1,0 +1,32 @@
+---
+- name: Tạo thư mục chứa code backend trên VPS
+  file:
+    path: "{{ item }}"
+    state: directory
+    mode: '0755'
+  loop:
+    - /opt/sba301/backend
+    - /opt/sba301/backend/target
+
+- name: Upload Dockerfile của backend lên VPS
+  copy:
+    src: ../../../backend/Dockerfile
+    dest: /opt/sba301/backend/Dockerfile
+    mode: '0644'
+
+- name: Upload file JAR Spring Boot đã build lên VPS
+  copy:
+    src: ../../../backend/target/ecommerce.jar
+    dest: /opt/sba301/backend/target/ecommerce.jar
+    mode: '0644'
+
+- name: Render file docker-compose.yml cấu hình dịch vụ
+  template:
+    src: docker-compose.yml.j2
+    dest: /opt/sba301/backend/docker-compose.yml
+    mode: '0644'
+
+- name: Khởi động các container Docker (MariaDB & Spring Boot)
+  shell:
+    cmd: docker compose up -d --build
+    chdir: /opt/sba301/backend

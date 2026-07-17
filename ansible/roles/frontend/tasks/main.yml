@@ -1,0 +1,16 @@
+---
+- name: Tạo thư mục chứa file tĩnh Frontend trên VPS
+  file:
+    path: /var/www/sba301/frontend
+    state: directory
+    owner: www-data
+    group: www-data
+    mode: '0755'
+
+- name: Đồng bộ thư mục build tĩnh React (dist) lên VPS
+  copy:
+    src: ../../../frontend/dist/
+    dest: /var/www/sba301/frontend/
+    owner: www-data
+    group: www-data
+    mode: '0644'

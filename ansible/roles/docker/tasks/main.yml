@@ -1,0 +1,40 @@
+---
+- name: Tạo thư mục lưu keyrings
+  file:
+    path: /etc/apt/keyrings
+    state: directory
+    mode: '0755'
+
+- name: Tải GPG Key của Docker
+  apt_key:
+    url: https://download.docker.com/linux/ubuntu/gpg
+    state: present
+    keyring: /etc/apt/keyrings/docker.gpg
+
+- name: Lấy tên codename của hệ điều hành
+  command: lsb_release -cs
+  register: ubuntu_codename
+  changed_when: false
+
+- name: Thêm Docker APT Repository vào nguồn source
+  apt_repository:
+    repo: "deb [arch=amd64 signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu {{ ubuntu_codename.stdout }} stable"
+    state: present
+    filename: docker
+
+- name: Cài đặt Docker Engine và Docker Compose plugin
+  apt:
+    name:
+      - docker-ce
+      - docker-ce-cli
+      - containerd.io
+      - docker-buildx-plugin
+      - docker-compose-plugin
+    state: present
+    update_cache: yes
+
+- name: Đảm bảo Docker service đang chạy và tự khởi động cùng hệ thống
+  service:
+    name: docker
+    state: started
+    enabled: yes

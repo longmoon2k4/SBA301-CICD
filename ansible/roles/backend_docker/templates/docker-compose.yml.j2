@@ -1,0 +1,41 @@
+version: '3.8'
+
+services:
+  db:
+    image: mariadb:10.11
+    container_name: sba301-db
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "{{ db_root_password }}"
+      MYSQL_DATABASE: "{{ db_name }}"
+      MYSQL_USER: "{{ db_user }}"
+      MYSQL_PASSWORD: "{{ db_password }}"
+    volumes:
+      - db_data:/var/lib/mysql
+    ports:
+      - "127.0.0.1:3306:3306" # Chỉ bind ở localhost để tránh expose ra ngoài internet
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: sba301-app
+    restart: always
+    depends_on:
+      - db
+    ports:
+      - "127.0.0.1:8080:8080" # Chỉ bind localhost, Nginx sẽ làm reverse proxy
+    environment:
+      - DB_HOST={{ db_host }}
+      - DB_PORT={{ db_port }}
+      - DB_NAME={{ db_name }}
+      - DB_USERNAME={{ db_user }}
+      - DB_PASSWORD={{ db_password }}
+      - JWT_SECRET={{ jwt_secret }}
+      - SMTP_USERNAME={{ smtp_username }}
+      - SMTP_PASSWORD={{ smtp_password }}
+      - VNPAY_TMN_CODE={{ vnpay_tmn_code }}
+      - VNPAY_HASH_SECRET={{ vnpay_hash_secret }}
+
+volumes:
+  db_data:

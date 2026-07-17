@@ -1,0 +1,12 @@
+---
+- name: Triển khai dự án SBA301 - Small Clothing E-commerce lên VPS Kamatera
+  hosts: vps
+  become: yes
+  gather_facts: yes
+
+  roles:
+    - common
+    - docker
+    - backend_docker
+    - frontend
+    - nginx

@@ -1,0 +1,38 @@
+---
+- name: Cập nhật bộ nhớ cache apt
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Cài đặt các package cơ bản và cần thiết
+  apt:
+    name:
+      - curl
+      - git
+      - ufw
+      - rsync
+      - software-properties-common
+      - ca-certificates
+      - gnupg
+    state: present
+
+- name: Cho phép lưu lượng SSH qua tường lửa UFW
+  ufw:
+    rule: allow
+    name: OpenSSH
+
+- name: Cho phép lưu lượng HTTP cổng 80 qua tường lửa UFW
+  ufw:
+    rule: allow
+    port: '80'
+    proto: tcp
+
+- name: Cho phép lưu lượng HTTPS cổng 443 qua tường lửa UFW
+  ufw:
+    rule: allow
+    port: '443'
+    proto: tcp
+
+- name: Kích hoạt tường lửa UFW
+  ufw:
+    state: enabled

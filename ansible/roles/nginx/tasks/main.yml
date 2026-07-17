@@ -1,0 +1,55 @@
+---
+- name: Cài đặt Nginx và Certbot (Let's Encrypt)
+  apt:
+    name:
+      - nginx
+      - certbot
+      - python3-certbot-nginx
+    state: present
+    update_cache: yes
+
+- name: Xóa cấu hình mặc định (default) của Nginx
+  file:
+    path: "{{ item }}"
+    state: absent
+  loop:
+    - /etc/nginx/sites-enabled/default
+    - /etc/nginx/sites-available/default
+
+- name: Tạo cấu hình Virtual Host cho dự án sba301 từ template
+  template:
+    src: nginx.conf.j2
+    dest: /etc/nginx/sites-available/sba301
+    mode: '0644'
+
+- name: Kích hoạt Virtual Host sba301 bằng symbolic link
+  file:
+    src: /etc/nginx/sites-available/sba301
+    dest: /etc/nginx/sites-enabled/sba301
+    state: link
+
+- name: Kiểm tra tính hợp lệ của file cấu hình Nginx
+  command: nginx -t
+  changed_when: false
+
+- name: Khởi động lại Nginx để nhận cấu hình mới
+  service:
+    name: nginx
+    state: restarted
+
+- name: Cấp chứng chỉ SSL tự động qua Let's Encrypt và tự động redirect HTTP sang HTTPS
+  command: >
+    certbot --nginx 
+    -d {{ domain_frontend }} 
+    -d {{ domain_backend }} 
+    --email {{ certbot_email }} 
+    --agree-tos 
+    --non-interactive 
+    --redirect
+  register: certbot_output
+  failed_when: false
+  changed_when: "'Congratulations!' in certbot_output.stdout"
+
+- name: Log kết quả đăng ký SSL
+  debug:
+    msg: "Certbot SSL output: {{ certbot_output.stdout | default('Không có kết quả') }}"

@@ -1,0 +1,25 @@
+# Cấu hình Tên miền
+domain_frontend: "shop.smiledev.id.vn"
+domain_backend: "api.smiledev.id.vn"
+
+# Email đăng ký SSL với Let's Encrypt
+certbot_email: "group1projecthms@gmail.com"
+
+# Cấu hình Database (chạy trong Docker container)
+db_host: "db"  # Tên container db trong Docker network
+db_port: 3306
+db_name: "smiledev_id"
+db_user: "smiledev_user"
+db_password: "Longdeptrai99"
+db_root_password: "RootLongdeptrai99"
+
+# Cấu hình Bảo mật Backend (JWT)
+jwt_secret: "dGhpc2lzYXZlcnlsb25nc2VjcmV0a2V5dGhhdGlzbW9yZXRoYW4zMmJ5dGVzbG9uZw=="
+
+# Cấu hình gửi mail (SMTP)
+smtp_username: "group1projecthms@gmail.com"
+smtp_password: "isie qifk ciyn lhiu"
+
+# Cấu hình cổng thanh toán VNPAY
+vnpay_tmn_code: "OWBZLJR8"
+vnpay_hash_secret: "OOV71FUQL5VBFDON8N90WFPOEJK5OO0V"
