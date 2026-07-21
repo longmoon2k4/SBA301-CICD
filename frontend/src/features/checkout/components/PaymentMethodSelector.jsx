@@ -17,7 +17,8 @@ function PaymentMethodSelector({ selectedMethod, onChange }) {
   ];
 
   return (
-    <div>
+    <div className="checkoutx-panel mb-4">
+      <h2 className="checkoutx-section-title">Phương thức thanh toán</h2>
       <Stack gap={3}>
         {methods.map((method) => (
           <div

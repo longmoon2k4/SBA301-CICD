@@ -17,6 +17,7 @@ function CartItemCard({ item, checked, onToggle, onChangeQuantity, onRemove }) {
     <>
       <div className={`cartx-item ${purchasable ? '' : 'cartx-item-disabled'}`}>
         <Row className="g-4 align-items-stretch">
+          {/* Checkbox */}
           <Col xs="auto" className="d-flex align-items-center">
             <Form.Check
               type="checkbox"
@@ -27,10 +28,12 @@ function CartItemCard({ item, checked, onToggle, onChangeQuantity, onRemove }) {
             />
           </Col>
 
+          {/* Thumbnail */}
           <Col xs={4} sm={3} md={2}>
             <Image src={item.thumbnail} alt={item.productName} className="cartx-thumb" />
           </Col>
 
+          {/* Info & Controls */}
           <Col className="d-flex flex-column justify-content-between py-1">
             <div className="cartx-item-header">
               <div>

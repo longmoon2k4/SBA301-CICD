@@ -12,18 +12,22 @@ function AddressSelection({ addresses, selectedAddressId, selectedAddress, onCha
   };
 
   return (
-    <div>
-      <div className="d-flex justify-content-between align-items-center mb-3">
-        <span className="text-muted small">Chọn địa chỉ nhận hàng</span>
-        <Button variant="outline-dark" size="sm" className="rounded-0" onClick={() => setShowModal(true)}>
-          + Thêm địa chỉ mới
-        </Button>
-      </div>
+    <div className="checkoutx-sidebar-block">
+      <Row className="align-items-center mb-3">
+        <Col>
+          <h2 className="checkoutx-section-title mb-0">Địa chỉ giao hàng</h2>
+        </Col>
+        <Col xs="auto">
+          <Button variant="outline-dark" size="sm" onClick={() => setShowModal(true)}>
+            + Thêm địa chỉ mới
+          </Button>
+        </Col>
+      </Row>
       
       <Form.Select
         value={selectedAddressId ?? ''}
         onChange={(event) => onChange(Number(event.target.value))}
-        className="mb-3 rounded-0"
+        className="mb-3"
       >
         {addresses.map((address) => (
           <option key={address.id} value={address.id}>
@@ -33,9 +37,9 @@ function AddressSelection({ addresses, selectedAddressId, selectedAddress, onCha
       </Form.Select>
 
       {selectedAddress ? (
-        <div className="checkoutx-address mt-2 p-3 border bg-light">
+        <div className="checkoutx-address mt-2">
           <p className="mb-1 fw-bold">{selectedAddress.recipientName} / {selectedAddress.phone}</p>
-          <p className="mb-0 text-muted small">
+          <p className="mb-0 text-muted">
             {selectedAddress.street}, {selectedAddress.ward && `${selectedAddress.ward}, `}
             <br/>
             {selectedAddress.district}, {selectedAddress.province}

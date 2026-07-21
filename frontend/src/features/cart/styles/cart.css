@@ -370,23 +370,19 @@
 }
 
 
-.cartx-label-spacing {
-  font-size: 0.9rem;
-  letter-spacing: 0.05em;
-}
 
-.cartx-shell .alert {
+.alert {
   border-radius: 0;
   border: none;
 }
 
-.cartx-shell .alert-warning {
+.alert-warning {
   background-color: #fffbeb;
   border-left: 4px solid #f59e0b;
   color: #92400e;
 }
 
-.cartx-shell .alert-info {
+.alert-info {
   background-color: #f8fafc;
   border-left: 4px solid #000;
   color: #000;

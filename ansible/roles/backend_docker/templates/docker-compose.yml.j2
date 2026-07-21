@@ -26,16 +26,18 @@ services:
     ports:
       - "127.0.0.1:8080:8080" # Chỉ bind localhost, Nginx sẽ làm reverse proxy
     environment:
-      - DB_HOST={{ db_host }}
-      - DB_PORT={{ db_port }}
-      - DB_NAME={{ db_name }}
-      - DB_USERNAME={{ db_user }}
-      - DB_PASSWORD={{ db_password }}
-      - JWT_SECRET={{ jwt_secret }}
-      - SMTP_USERNAME={{ smtp_username }}
-      - SMTP_PASSWORD={{ smtp_password }}
+      - SPRING_DATASOURCE_URL=jdbc:mariadb://db:3306/{{ db_name }}
+      - SPRING_DATASOURCE_USERNAME={{ db_user }}
+      - SPRING_DATASOURCE_PASSWORD={{ db_password }}
+      - SPRING_DATASOURCE_DRIVER_CLASS_NAME=org.mariadb.jdbc.Driver
+      - SPRING_JPA_PROPERTIES_HIBERNATE_DIALECT=org.hibernate.dialect.MariaDBDialect
+      - SPRING_JPA_HIBERNATE_DDL_AUTO=update
+      - APP_JWT_SECRET={{ jwt_secret }}
+      - SPRING_MAIL_USERNAME={{ smtp_username }}
+      - SPRING_MAIL_PASSWORD={{ smtp_password }}
       - VNPAY_TMN_CODE={{ vnpay_tmn_code }}
       - VNPAY_HASH_SECRET={{ vnpay_hash_secret }}
+      - APP_CORS_ALLOWED_ORIGINS=https://{{ domain_frontend }}
 
 volumes:
   db_data:

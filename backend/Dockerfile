@@ -6,7 +6,7 @@ WORKDIR /app
 # Copy file JAR đã được build sẵn từ thư mục target ở local
 COPY target/ecommerce.jar app.jar
 
-# Expose cổng chạy ứng dụng (cổng cấu hình trong application.properties)
+# Expose port mặc định của ứng dụng
 EXPOSE 8080
 
 # Chạy ứng dụng Spring Boot

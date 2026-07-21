@@ -1,7 +1,7 @@
 import { Alert, Button, Col, Modal, Row, Spinner, Stack } from 'react-bootstrap';
+import { Link } from 'react-router-dom';
 import { formatDateTime, formatVND } from '../../../../shared/utils/format';
 import { useCartExperience } from '../../hooks/useCartExperience.js';
-import { Link } from 'react-router-dom';
 
 import CartItemList from './CartItemList.jsx';
 import '../../styles/cart.css';
@@ -10,7 +10,6 @@ function CartExperience() {
   const {
     loading,
     errorMessage,
-    isUnauthenticated,
     items,
     selectedItemIds,
     stockSyncNotice,
@@ -28,6 +27,7 @@ function CartExperience() {
     proceedToCheckout,
     cartAlert,
     setCartAlert,
+    handleAcknowledgeChanges,
   } = useCartExperience();
 
   if (loading) {
@@ -39,67 +39,67 @@ function CartExperience() {
     );
   }
 
-  if (isUnauthenticated) {
-    return (
-      <section className="cartx-shell">
-        <div className="container">
-          <header className="cartx-hero">
-            <p className="cartx-overline">Your Bag</p>
-            <h1 className="cartx-title">Giỏ hàng</h1>
-            <p className="cartx-subtitle">
-              Miễn phí giao hàng cho đơn từ 1.000.000đ. Trả hàng miễn phí trong 30 ngày.
-            </p>
-          </header>
+  const isAuthenticated = Boolean(localStorage.getItem('accessToken'));
 
-          <div className="text-center py-5 my-5 border border-dashed border-dark">
-            <div className="mb-4">
-              <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" className="bi bi-bag-plus text-muted" viewBox="0 0 16 16">
-                <path fillRule="evenodd" d="M8 7.5a.5.5 0 0 1 .5.5v1.5H10a.5.5 0 0 1 0 1H8.5V12a.5.5 0 0 1-1 0v-1.5H6a.5.5 0 0 1 0-1h1.5V8a.5.5 0 0 1 .5-.5z" />
-                <path d="M8 1a2.5 2.5 0 0 1 2.5 2.5V4h-5v-.5A2.5 2.5 0 0 1 8 1zm3.5 3v-.5a3.5 3.5 0 1 0-7 0V4H1v10a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V4h-3.5zM2 5h12v9a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V5z" />
-              </svg>
-            </div>
-            <h3 className="fw-bold text-uppercase mb-2" style={{ fontFamily: 'Space Grotesk' }}>Bạn chưa đăng nhập</h3>
-            <p className="text-muted mb-4 mx-auto" style={{ maxWidth: '400px' }}>
-              Vui lòng đăng nhập để xem giỏ hàng của bạn và tiếp tục thanh toán đơn hàng.
-            </p>
-            <div className="d-flex justify-content-center gap-3 mt-4">
-              <Button as={Link} to="/login" variant="dark" className="rounded-0 text-uppercase fw-bold cartx-label-spacing px-5 py-3">
-                Đăng nhập
-              </Button>
-              <Button as={Link} to="/register" variant="outline-dark" className="rounded-0 text-uppercase fw-bold cartx-label-spacing px-5 py-3">
-                Đăng ký
-              </Button>
-            </div>
+  if (!isAuthenticated) {
+    return (
+      <div className="container text-center py-5 my-5" style={{ maxWidth: '500px' }}>
+        <div className="checkoutx-panel p-5 border border-dark border-3" style={{ boxShadow: '8px 8px 0px 0px #000', backgroundColor: '#fff' }}>
+          <h2 className="fw-bold mb-4 text-uppercase" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            Yêu cầu Đăng nhập
+          </h2>
+          <p className="text-muted mb-4">
+            Vui lòng đăng nhập hoặc đăng ký tài khoản của bạn để quản lý giỏ hàng và tiến hành thanh toán.
+          </p>
+          <div className="d-flex flex-column gap-3">
+            <Button
+              as={Link}
+              to="/login"
+              variant="dark"
+              className="w-100 rounded-0 text-uppercase fw-bold py-3"
+            >
+              Đăng nhập ngay
+            </Button>
+            <Button
+              as={Link}
+              to="/register"
+              variant="outline-dark"
+              className="w-100 rounded-0 text-uppercase fw-bold py-3 border-2"
+            >
+              Đăng ký tài khoản mới
+            </Button>
           </div>
         </div>
-      </section>
+      </div>
     );
   }
 
   if (errorMessage) {
     return (
-      <section className="cartx-shell">
-        <div className="container">
-          <header className="cartx-hero">
-            <p className="cartx-overline">Your Bag</p>
-            <h1 className="cartx-title">Giỏ hàng</h1>
-            <p className="cartx-subtitle">
-              Miễn phí giao hàng cho đơn từ 1.000.000đ. Trả hàng miễn phí trong 30 ngày.
-            </p>
-          </header>
-          <Alert variant="danger" className="mb-0 rounded-0">
-            <Stack direction="horizontal" gap={3} className="justify-content-between align-items-center">
-              <span>{errorMessage}</span>
-              <Button variant="outline-dark" size="sm" className="rounded-0" onClick={reloadCart}>
-                Thử lại
-              </Button>
-            </Stack>
-          </Alert>
+      <div className="container text-center py-5 my-5" style={{ maxWidth: '500px' }}>
+        <div className="checkoutx-panel p-5 border border-dark border-3" style={{ boxShadow: '8px 8px 0px 0px #000', backgroundColor: '#fff' }}>
+          <div className="text-danger mb-4">
+            <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" fill="currentColor" viewBox="0 0 16 16">
+              <path d="M8.982 1.566a1.13 1.13 0 0 0-1.96 0L.165 13.233c-.457.778.091 1.767.98 1.767h13.713c.889 0 1.438-.99.98-1.767zM8 5c.535 0 .954.462.9.995l-.35 3.507a.552.552 0 0 1-1.1 0L7.1 5.995A.905.905 0 0 1 8 5m.002 6a1 1 0 1 1 0 2 1 1 0 0 1 0-2"/>
+            </svg>
+          </div>
+          <h2 className="fw-bold mb-4 text-uppercase" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+            Đã có lỗi xảy ra
+          </h2>
+          <p className="text-muted mb-4">
+            {errorMessage}
+          </p>
+          <Button
+            variant="dark"
+            className="w-100 rounded-0 text-uppercase fw-bold py-3"
+            onClick={reloadCart}
+          >
+            Thử lại
+          </Button>
         </div>
-      </section>
+      </div>
     );
   }
-
 
   return (
     <section className="cartx-shell">
@@ -150,14 +150,15 @@ function CartExperience() {
                     <span>{formatVND(itemsSubtotal)}</span>
                   </div>
                   <div className="d-flex justify-content-between align-items-center mt-3 pt-3 border-top">
-                    <span className="text-uppercase fw-bold cartx-label-spacing">Tạm tính</span>
+                    <span className="text-uppercase fw-bold" style={{ fontSize: '0.9rem', letterSpacing: '0.05em' }}>Tạm tính</span>
                     <strong className="fs-4">{formatVND(itemsSubtotal)}</strong>
                   </div>
                 </Stack>
                 <Button
                   variant="dark"
                   size="lg"
-                  className="w-100 rounded-0 text-uppercase fw-bold cartx-label-spacing"
+                  className="w-100 rounded-0 text-uppercase fw-bold"
+                  style={{ letterSpacing: '0.05em' }}
                   disabled={selectedItemIds.length === 0}
                   onClick={proceedToCheckout}
                 >
@@ -170,69 +171,14 @@ function CartExperience() {
             </div>
           </Col>
         </Row>
-
-        {process.env.NODE_ENV === 'development' && (
-          <div className="mt-5 p-4 bg-light rounded border border-warning border-2">
-            <h4 className="text-warning mb-3">🛠️ Khu vực Debug (Chỉ dùng để Test)</h4>
-            <p className="text-muted small mb-3">
-              Vì trang Sản phẩm do bạn khác làm chưa hoàn thiện, bạn có thể click các nút dưới đây để giả lập việc &quot;Thêm sản phẩm mới&quot; vào giỏ hàng.
-            </p>
-            <div className="d-flex gap-2 flex-wrap">
-              <Button
-                variant="outline-primary"
-                onClick={async () => {
-                  const { addItemAPI } = await import('../../services/cartService.js');
-                  await addItemAPI({
-                    variantId: 901,
-                    productId: 801,
-                    productName: 'Áo Khoác Nam Mùa Đông',
-                    sku: 'AOK-NAM-L-DEN',
-                    size: 'L',
-                    color: 'Đen',
-                    unitPrice: 550000,
-                    quantity: 1,
-                    stockQuantity: 10,
-                    isActive: true,
-                    thumbnail: 'https://images.unsplash.com/photo-1556821840-3a63f95609a7?auto=format&fit=crop&w=640&q=80',
-                  });
-                  reloadCart();
-                  setCartAlert({ title: 'Thành công', message: 'Đã thêm Áo Khoác Nam vào giỏ hàng!', type: 'info' });
-                }}
-              >
-                + Thêm Áo Khoác (550K)
-              </Button>
-              <Button
-                variant="outline-success"
-                onClick={async () => {
-                  const { addItemAPI } = await import('../../services/cartService.js');
-                  await addItemAPI({
-                    variantId: 902,
-                    productId: 802,
-                    productName: 'Giày Thể Thao Sneaker',
-                    sku: 'GIAY-SNE-42-TRG',
-                    size: '42',
-                    color: 'Trắng',
-                    unitPrice: 850000,
-                    quantity: 1,
-                    stockQuantity: 5,
-                    isActive: true,
-                    thumbnail: 'https://images.unsplash.com/photo-1549298916-b41d501d3772?auto=format&fit=crop&w=640&q=80',
-                  });
-                  reloadCart();
-                  setCartAlert({ title: 'Thành công', message: 'Đã thêm Giày Thể Thao vào giỏ hàng!', type: 'info' });
-                }}
-              >
-                + Thêm Giày Sneaker (850K)
-              </Button>
-            </div>
-          </div>
-        )}
       </div>
 
       <Modal
-        show={Boolean(cartAlert)}
+        show={Boolean(cartAlert && cartAlert.isFromCheckout)}
         onHide={() => setCartAlert(null)}
         centered
+        backdrop="static"
+        keyboard={false}
         className="cartx-modal"
         backdropClassName="cartx-modal-backdrop"
       >
@@ -244,18 +190,91 @@ function CartExperience() {
           </Modal.Title>
         </Modal.Header>
         <Modal.Body>
-          <p className="mb-0 text-center py-3">{cartAlert?.message}</p>
+          {cartAlert?.isConfirm ? (
+            <div className="py-2">
+              <p>Một số sản phẩm trong giỏ hàng của bạn đã có sự thay đổi về số lượng tồn kho thực tế:</p>
+              
+              {cartAlert.removedItems?.length > 0 && (
+                <div className="mb-3">
+                  <strong>Sản phẩm đã hết hàng (bị loại bỏ):</strong>
+                  <ul className="mb-0 text-danger mt-1">
+                    {cartAlert.removedItems.map(item => (
+                      <li key={item.id}>
+                        {item.productName} - {item.color}, Size {item.size}
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+
+              {cartAlert.adjustedItems?.length > 0 && (
+                <div className="mb-3">
+                  <strong>Sản phẩm bị giảm số lượng:</strong>
+                  <ul className="mb-0 text-warning mt-1">
+                    {cartAlert.adjustedItems.map(item => (
+                      <li key={item.id}>
+                        {item.productName} - {item.color}, Size {item.size} 
+                        <br/>
+                        <span className="small text-muted">(Từ {item.oldQuantity} giảm xuống còn {item.newQuantity})</span>
+                      </li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              <p className="mb-0 mt-3 text-muted">
+                {cartAlert.isFromCheckout 
+                  ? "Bạn có muốn tự động cập nhật và tiếp tục thanh toán không?"
+                  : "Hệ thống sẽ tự động cập nhật lại số lượng trong giỏ hàng của bạn."}
+              </p>
+            </div>
+          ) : (
+            <p className="mb-0 text-center py-3">{cartAlert?.message}</p>
+          )}
         </Modal.Body>
         <Modal.Footer className="justify-content-center">
-          <Button
-            variant="dark"
-            className="w-100 rounded-0 text-uppercase fw-bold"
-            onClick={() => setCartAlert(null)}
-          >
-            Đã hiểu
-          </Button>
+          {cartAlert?.isConfirm ? (
+            <Stack direction="horizontal" gap={3} className="w-100">
+               <Button variant="outline-dark" className="w-50 rounded-0 text-uppercase fw-bold" onClick={() => handleAcknowledgeChanges(false)}>
+                 {cartAlert.isFromCheckout ? "Hủy" : "Đóng"}
+               </Button>
+               <Button variant="dark" className="w-50 rounded-0 text-uppercase fw-bold" onClick={() => handleAcknowledgeChanges(cartAlert.isFromCheckout)}>
+                 {cartAlert.isFromCheckout ? "Đồng ý" : "Cập nhật"}
+               </Button>
+            </Stack>
+          ) : (
+            <Button
+              variant="dark"
+              className="w-100 rounded-0 text-uppercase fw-bold"
+              onClick={() => setCartAlert(null)}
+            >
+              Đã hiểu
+            </Button>
+          )}
         </Modal.Footer>
       </Modal>
+
+      {/* Background Sync Toast */}
+      {cartAlert && !cartAlert.isFromCheckout && (
+        <div 
+          className="position-fixed bottom-0 end-0 p-4" 
+          style={{ zIndex: 1050 }}
+        >
+          <div className="bg-dark text-white p-4 rounded-0 shadow-lg border border-3 border-dark" style={{ width: '360px', boxShadow: '8px 8px 0px 0px rgba(0,0,0,0.2)' }}>
+            <h5 className="fw-bold mb-2 text-warning text-uppercase" style={{ letterSpacing: '0.05em' }}>⚠️ Tồn kho thay đổi</h5>
+            <p className="small mb-4 text-light opacity-75">
+              Số lượng tồn kho thực tế của một số sản phẩm đã giảm xuống thấp hơn số lượng trong giỏ hàng.
+            </p>
+            <Button 
+              variant="light" 
+              className="w-100 rounded-0 fw-bold text-uppercase py-2"
+              onClick={() => handleAcknowledgeChanges(false)}
+            >
+              Cập nhật lại giỏ hàng
+            </Button>
+          </div>
+        </div>
+      )}
     </section>
   );
 }

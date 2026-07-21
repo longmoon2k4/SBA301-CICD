@@ -3,7 +3,8 @@ import { formatVND } from '../../../shared/utils/format.js';
 
 function ShippingSelection({ shippingMethods, selectedShippingId, onChange }) {
   return (
-    <div>
+    <div className="checkoutx-sidebar-block">
+      <h2 className="checkoutx-section-title">Vận chuyển</h2>
       <Stack gap={3}>
         {shippingMethods.map((method) => (
           <Form.Check

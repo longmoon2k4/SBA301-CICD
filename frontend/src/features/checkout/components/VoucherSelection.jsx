@@ -2,15 +2,15 @@ import { Form, Stack, Button } from 'react-bootstrap';
 
 function VoucherSelection({ voucherInput, voucherNotice, onInputChange, onApply }) {
   return (
-    <div>
-      <Stack direction="horizontal" gap={2}>
+    <div className="checkoutx-sidebar-block">
+      <h2 className="checkoutx-section-title">Mã giảm giá</h2>
+      <Stack gap={2}>
         <Form.Control
           placeholder="Nhập mã ưu đãi..."
           value={voucherInput}
           onChange={(event) => onInputChange(event.target.value)}
-          className="rounded-0"
         />
-        <Button variant="outline-dark" className="rounded-0 text-uppercase fw-bold text-nowrap" onClick={onApply}>
+        <Button variant="outline-dark" className="rounded-0 text-uppercase fw-bold" onClick={onApply}>
           Áp dụng
         </Button>
       </Stack>
