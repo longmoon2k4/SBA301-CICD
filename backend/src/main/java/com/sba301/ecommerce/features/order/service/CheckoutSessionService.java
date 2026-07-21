@@ -17,6 +17,8 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.time.OffsetDateTime;
+import java.time.ZoneId;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
@@ -116,7 +118,7 @@ public class CheckoutSessionService {
 
         CheckoutSessionResponse response = new CheckoutSessionResponse();
         response.setSessionId(sessionId);
-        response.setExpiresAt(expiresAt);
+        response.setExpiresAt(expiresAt.atZone(ZoneId.systemDefault()).toOffsetDateTime());
         response.setItems(itemResponses);
 
         return response;
@@ -155,7 +157,7 @@ public class CheckoutSessionService {
 
         CheckoutSessionResponse response = new CheckoutSessionResponse();
         response.setSessionId(sessionId);
-        response.setExpiresAt(expiresAt);
+        response.setExpiresAt(expiresAt.atZone(ZoneId.systemDefault()).toOffsetDateTime());
         response.setItems(itemResponses);
 
         return response;

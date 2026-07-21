@@ -37,6 +37,7 @@ export function useCartItems({ setCartAlert }) {
           };
         }),
       );
+      window.dispatchEvent(new Event('cartUpdated'));
     } catch (error) {
       setCartAlert({
         title: 'Lỗi',
@@ -108,6 +109,7 @@ export function useCartItems({ setCartAlert }) {
         setSelectedItemIds((prevSelected) => [...prevSelected, newId]);
         return [...previousItems, createdItem];
       });
+      window.dispatchEvent(new Event('cartUpdated'));
     } catch (error) {
       setCartAlert({
         title: 'Lỗi',
@@ -125,6 +127,7 @@ export function useCartItems({ setCartAlert }) {
       await removeItemAPI(itemId);
       setItems((previousItems) => previousItems.filter((item) => item.id !== itemId));
       setSelectedItemIds((previousIds) => previousIds.filter((id) => id !== itemId));
+      window.dispatchEvent(new Event('cartUpdated'));
     } catch (error) {
       setCartAlert({
         title: 'Lỗi',
@@ -145,6 +148,7 @@ export function useCartItems({ setCartAlert }) {
       await clearUnavailableItemsAPI(unavailableIds);
       setItems((previousItems) => previousItems.filter(isPurchasable));
       setSelectedItemIds((previousIds) => previousIds.filter((id) => !unavailableIds.includes(id)));
+      window.dispatchEvent(new Event('cartUpdated'));
     } catch (error) {
       setCartAlert({
         title: 'Lỗi',

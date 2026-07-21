@@ -138,6 +138,7 @@ function CheckoutLayout() {
         if (paymentUrl) {
           sessionStorage.removeItem('checkout_selected_items');
           setIsOrderCompleted(true);
+          window.dispatchEvent(new Event('cartUpdated'));
           window.location.href = paymentUrl;
           return;
         } else {
@@ -149,6 +150,7 @@ function CheckoutLayout() {
 
       sessionStorage.removeItem('checkout_selected_items');
       setIsOrderCompleted(true);
+      window.dispatchEvent(new Event('cartUpdated'));
       setShowSuccessModal(true);
 
     } catch (error) {

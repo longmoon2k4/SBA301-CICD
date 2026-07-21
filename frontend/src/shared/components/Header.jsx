@@ -101,7 +101,7 @@ const getAccountMenu = (isAuthenticated, role) => {
 const getCartCount = async () => {
   try {
     const snapshot = await getCartSnapshot();
-    return snapshot.items.reduce((sum, item) => sum + (item.quantity || 1), 0);
+    return snapshot.items ? snapshot.items.length : 0;
   } catch {
     return 0;
   }
