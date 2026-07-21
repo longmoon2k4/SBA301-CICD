@@ -5,6 +5,7 @@ import { ArrowLeft, Bag, Lightning, CheckLg, BoxSeam } from 'react-bootstrap-ico
 import { getProductById } from '../service/productService.js';
 import { addItemAPI } from '../../cart/services/cartService.js';
 import { formatVND } from '../../../shared/utils/format.js';
+import { getAuthState } from '../../../shared/utils/auth.js';
 
 export default function CustomerProductDetail() {
   const { id } = useParams();
@@ -83,6 +84,13 @@ export default function CustomerProductDetail() {
   }, [selectedColor, availableSizes]);
 
   const handleAddToCart = async (redirectCheckout = false) => {
+    const auth = getAuthState();
+    if (!auth.isAuthenticated) {
+      alert('Vui lòng đăng nhập trước khi thêm sản phẩm vào giỏ hàng.');
+      navigate('/login');
+      return;
+    }
+
     if (!selectedVariant) {
       alert('Vui lòng chọn đầy đủ Màu sắc và Kích cỡ.');
       return;

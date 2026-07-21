@@ -149,6 +149,10 @@ const Header = () => {
   useEffect(() => {
     let mounted = true;
     const syncCartCount = () => {
+      if (!authState.isAuthenticated) {
+        if (mounted) setCartCount(0);
+        return;
+      }
       getCartCount().then((count) => {
         if (mounted) setCartCount(count);
       });
@@ -162,7 +166,7 @@ const Header = () => {
       window.removeEventListener('cart:updated', syncCartCount);
       window.removeEventListener('cartUpdated', syncCartCount);
     };
-  }, []);
+  }, [authState.isAuthenticated]);
 
   // Bắt 401 từ axios interceptor → force logout
   useEffect(() => {
@@ -425,7 +429,7 @@ const Header = () => {
             <Link to="/cart" className="store-header__cart" aria-label="Giỏ hàng" onClick={handleCartClick}>
               <Bag size={20} />
               <span className="store-header__cart-label d-none d-lg-inline">Giỏ hàng</span>
-              {cartCount > 0 && (
+              {authState.isAuthenticated && cartCount > 0 && (
                 <span className="store-header__cart-count">{cartCount}</span>
               )}
             </Link>
