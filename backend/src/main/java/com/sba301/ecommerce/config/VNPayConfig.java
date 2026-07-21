@@ -20,7 +20,8 @@ public class VNPayConfig {
     @Value("${vnpay.hash-secret}")
     private String vnp_HashSecret;
     
-    public static final String vnp_ReturnUrl = "http://localhost:5173/checkout/vnpay-return";
+    @Value("${vnpay.return-url:http://localhost:5173/checkout/vnpay-return}")
+    private String vnp_ReturnUrl;
 
     public String getPaymentUrl(String orderCode, String amountStr, String clientIp) {
         Map<String, String> vnp_Params = new HashMap<>();

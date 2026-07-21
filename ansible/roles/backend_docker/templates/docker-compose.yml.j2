@@ -37,6 +37,7 @@ services:
       - SPRING_MAIL_PASSWORD={{ smtp_password }}
       - VNPAY_TMN_CODE={{ vnpay_tmn_code }}
       - VNPAY_HASH_SECRET={{ vnpay_hash_secret }}
+      - VNPAY_RETURN_URL=https://{{ domain_frontend }}/checkout/vnpay-return
       - APP_CORS_ALLOWED_ORIGINS=https://{{ domain_frontend }}
 
 volumes:
