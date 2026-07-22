@@ -1,11 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { applyVoucherAPI, addAddressAPI, getAddressesAPI, getShippingMethodsAPI } from '../services/checkoutService.js';
 import { getItemsSubtotal } from '../../cart/utils/cartMath.js';
 import { getDiscountAmount, getCartTotals } from '../utils/checkoutMath.js';
 import api from '../../../shared/services/axios.js';
 
 export function useCheckoutPage() {
+  const queryClient = useQueryClient();
   const [errorMessage, setErrorMessage] = useState('');
 
   const [selectedAddressId, setSelectedAddressId] = useState(null);
@@ -124,10 +125,14 @@ export function useCheckoutPage() {
   const addAddress = async (addrPayload) => {
     try {
       const res = await addAddressAPI(addrPayload);
-      setAddresses(prev => [...prev, res.data]);
-      setSelectedAddressId(res.data.id);
+      queryClient.setQueryData(['addresses'], (old) => (old ? [...old, res.data] : [res.data]));
+      await queryClient.invalidateQueries({ queryKey: ['addresses'] });
+      if (res.data?.id) {
+        setSelectedAddressId(res.data.id);
+      }
     } catch (err) {
-      alert("Lỗi khi thêm địa chỉ");
+      console.error('Lỗi khi thêm địa chỉ:', err);
+      alert('Lỗi khi thêm địa chỉ: ' + (err.response?.data?.message || err.message || 'Không thể thêm địa chỉ'));
     }
   };
 
