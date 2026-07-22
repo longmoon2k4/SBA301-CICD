@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
-import { Container, Row, Col, Button, Badge, Spinner, Alert } from 'react-bootstrap';
-import { GeoAlt, PlusLg, HouseDoor, CheckCircleFill, Trash } from 'react-bootstrap-icons';
+import { Container, Row, Col, Button, Badge, Spinner, Alert, Modal } from 'react-bootstrap';
+import { GeoAlt, PlusLg, HouseDoor, CheckCircleFill, Trash, ExclamationTriangle } from 'react-bootstrap-icons';
 import { getAddressesAPI, addAddressAPI, deleteAddressAPI } from '../../checkout/services/checkoutService.js';
 import AddressFormModal from '../../checkout/components/AddressFormModal.jsx';
 
@@ -9,6 +9,13 @@ export default function MyAddresses() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [showAddModal, setShowAddModal] = useState(false);
+
+  // Custom Delete Confirm Modal State
+  const [deleteTarget, setDeleteTarget] = useState(null);
+  const [deleting, setDeleting] = useState(false);
+
+  // Custom Notice/Alert Modal State
+  const [noticeModal, setNoticeModal] = useState({ show: false, title: '', message: '', type: 'danger' });
 
   useEffect(() => {
     fetchAddresses();
@@ -37,20 +44,34 @@ export default function MyAddresses() {
       }
     } catch (err) {
       console.error('Lỗi khi thêm địa chỉ mới:', err);
-      alert('Lỗi khi thêm địa chỉ: ' + (err.response?.data?.message || err.message || 'Không thể thêm địa chỉ'));
+      setNoticeModal({
+        show: true,
+        title: 'Lỗi thêm địa chỉ',
+        message: err.response?.data?.message || err.message || 'Không thể thêm địa chỉ mới.',
+        type: 'danger',
+      });
     }
   };
 
-  const handleDeleteAddress = async (id, recipientName) => {
-    if (!window.confirm(`Bạn có chắc chắn muốn xóa địa chỉ của "${recipientName}" không?`)) {
-      return;
-    }
+  const handleConfirmDelete = async () => {
+    if (!deleteTarget) return;
     try {
-      await deleteAddressAPI(id);
+      setDeleting(true);
+      await deleteAddressAPI(deleteTarget.id);
+      setDeleteTarget(null);
       fetchAddresses();
     } catch (err) {
       console.error('Lỗi khi xóa địa chỉ:', err);
-      alert('Lỗi khi xóa địa chỉ: ' + (err.response?.data?.message || err.message || 'Không thể xóa địa chỉ'));
+      const msg = err.response?.data?.message || err.message || 'Không thể xóa địa chỉ này.';
+      setDeleteTarget(null);
+      setNoticeModal({
+        show: true,
+        title: 'Không thể xóa địa chỉ',
+        message: msg,
+        type: 'danger',
+      });
+    } finally {
+      setDeleting(false);
     }
   };
 
@@ -128,7 +149,7 @@ export default function MyAddresses() {
                           size="sm"
                           className="rounded-0 p-1 d-inline-flex align-items-center justify-content-center"
                           title="Xóa địa chỉ"
-                          onClick={() => handleDeleteAddress(addr.id, addr.recipientName)}
+                          onClick={() => setDeleteTarget(addr)}
                         >
                           <Trash size={14} />
                         </Button>
@@ -155,6 +176,92 @@ export default function MyAddresses() {
         onHide={() => setShowAddModal(false)}
         onSave={handleSaveAddress}
       />
+
+      {/* Custom Delete Confirmation Modal */}
+      <Modal
+        show={Boolean(deleteTarget)}
+        onHide={() => !deleting && setDeleteTarget(null)}
+        centered
+        backdrop="static"
+      >
+        <div className="border border-dark border-3 bg-white" style={{ boxShadow: '8px 8px 0px #000' }}>
+          <Modal.Header closeButton={!deleting} className="border-bottom border-dark border-2 bg-light">
+            <Modal.Title className="fw-bold text-uppercase" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              Xác nhận xóa địa chỉ
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="p-4 text-center">
+            <div className="text-danger mb-3">
+              <ExclamationTriangle size={54} />
+            </div>
+            <h5 className="fw-bold mb-3">Bạn có chắc chắn muốn xóa địa chỉ này?</h5>
+            {deleteTarget && (
+              <div className="p-3 bg-light border border-dark border-2 text-start mb-2">
+                <p className="fw-bold mb-1">{deleteTarget.recipientName} - {deleteTarget.phone}</p>
+                <p className="text-muted small mb-0">
+                  {deleteTarget.street}, {deleteTarget.ward}, {deleteTarget.district}, {deleteTarget.province}
+                </p>
+              </div>
+            )}
+            <p className="text-muted small mb-0 mt-2">Hành động này không thể hoàn tác sau khi thực hiện.</p>
+          </Modal.Body>
+          <Modal.Footer className="border-top border-dark border-2 d-flex justify-content-end gap-2 bg-light">
+            <Button
+              variant="outline-dark"
+              className="rounded-0 text-uppercase fw-bold px-4"
+              onClick={() => setDeleteTarget(null)}
+              disabled={deleting}
+            >
+              Hủy
+            </Button>
+            <Button
+              variant="danger"
+              className="rounded-0 text-uppercase fw-bold px-4 border-2"
+              onClick={handleConfirmDelete}
+              disabled={deleting}
+            >
+              {deleting ? (
+                <>
+                  <Spinner animation="border" size="sm" className="me-2" />
+                  Đang xóa...
+                </>
+              ) : (
+                'Xác nhận xóa'
+              )}
+            </Button>
+          </Modal.Footer>
+        </div>
+      </Modal>
+
+      {/* Custom Alert/Notice Modal */}
+      <Modal
+        show={noticeModal.show}
+        onHide={() => setNoticeModal({ ...noticeModal, show: false })}
+        centered
+      >
+        <div className="border border-dark border-3 bg-white" style={{ boxShadow: '8px 8px 0px #000' }}>
+          <Modal.Header closeButton className="border-bottom border-dark border-2 bg-light">
+            <Modal.Title className="fw-bold text-uppercase" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
+              {noticeModal.title}
+            </Modal.Title>
+          </Modal.Header>
+          <Modal.Body className="p-4 text-center">
+            <div className={`text-${noticeModal.type} mb-3`}>
+              <ExclamationTriangle size={48} />
+            </div>
+            <p className="mb-0 fs-6 fw-bold text-dark">{noticeModal.message}</p>
+          </Modal.Body>
+          <Modal.Footer className="border-top border-dark border-2 bg-light">
+            <Button
+              variant="dark"
+              className="w-100 rounded-0 text-uppercase fw-bold py-2"
+              onClick={() => setNoticeModal({ ...noticeModal, show: false })}
+            >
+              Đã hiểu
+            </Button>
+          </Modal.Footer>
+        </div>
+      </Modal>
     </div>
   );
 }
