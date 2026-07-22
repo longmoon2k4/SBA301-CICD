@@ -89,9 +89,8 @@ public class AddressServiceImpl implements AddressService {
             throw new com.sba301.ecommerce.exception.BadRequestException("Bạn không có quyền xóa địa chỉ này.");
         }
 
-        if (orderRepository.existsByShippingAddressId(id)) {
-            throw new com.sba301.ecommerce.exception.BadRequestException("Địa chỉ này đã được dùng trong đơn hàng cũ, không thể xóa.");
-        }
+        // Unlink address from historical orders before deletion to prevent foreign key constraints
+        orderRepository.unlinkShippingAddress(id);
 
         boolean wasDefault = Boolean.TRUE.equals(address.getIsDefault());
         addressRepository.delete(address);

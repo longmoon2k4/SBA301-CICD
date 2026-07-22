@@ -4,6 +4,7 @@ import com.sba301.ecommerce.features.entities.Order;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.stereotype.Repository;
 
+import org.springframework.data.jpa.repository.Modifying;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import java.util.List;
@@ -14,6 +15,10 @@ public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUserIdOrderByCreatedAtDesc(Long userId);
     Optional<Order> findByOrderCode(String orderCode);
     boolean existsByShippingAddressId(Long shippingAddressId);
+
+    @Modifying
+    @Query("UPDATE Order o SET o.shippingAddress = null WHERE o.shippingAddress.id = :addressId")
+    void unlinkShippingAddress(@Param("addressId") Long addressId);
 
     @Query("SELECT o FROM Order o " +
            "LEFT JOIN FETCH o.items i " +
