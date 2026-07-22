@@ -14,15 +14,19 @@ import org.springframework.transaction.annotation.Transactional;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import com.sba301.ecommerce.features.order.repository.OrderRepository;
+
 @Service
 public class AddressServiceImpl implements AddressService {
 
     private final AddressRepository addressRepository;
     private final UserRepository userRepository;
+    private final OrderRepository orderRepository;
 
-    public AddressServiceImpl(AddressRepository addressRepository, UserRepository userRepository) {
+    public AddressServiceImpl(AddressRepository addressRepository, UserRepository userRepository, OrderRepository orderRepository) {
         this.addressRepository = addressRepository;
         this.userRepository = userRepository;
+        this.orderRepository = orderRepository;
     }
 
     private User getCurrentUser() {
@@ -72,6 +76,34 @@ public class AddressServiceImpl implements AddressService {
 
         Address saved = addressRepository.save(address);
         return toDto(saved);
+    }
+
+    @Override
+    @Transactional
+    public void deleteAddress(Long id) {
+        User currentUser = getCurrentUser();
+        Address address = addressRepository.findById(id)
+                .orElseThrow(() -> new com.sba301.ecommerce.exception.ResourceNotFoundException("Không tìm thấy địa chỉ."));
+
+        if (!address.getUser().getId().equals(currentUser.getId())) {
+            throw new com.sba301.ecommerce.exception.BadRequestException("Bạn không có quyền xóa địa chỉ này.");
+        }
+
+        if (orderRepository.existsByShippingAddressId(id)) {
+            throw new com.sba301.ecommerce.exception.BadRequestException("Địa chỉ này đã được dùng trong đơn hàng cũ, không thể xóa.");
+        }
+
+        boolean wasDefault = Boolean.TRUE.equals(address.getIsDefault());
+        addressRepository.delete(address);
+
+        if (wasDefault) {
+            List<Address> remaining = addressRepository.findByUserId(currentUser.getId());
+            if (!remaining.isEmpty()) {
+                Address newDefault = remaining.get(0);
+                newDefault.setIsDefault(true);
+                addressRepository.save(newDefault);
+            }
+        }
     }
 
     private AddressDto toDto(Address address) {

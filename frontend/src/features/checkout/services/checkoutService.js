@@ -6,6 +6,11 @@ export async function addAddressAPI(addressData) {
   return res;
 }
 
+export async function deleteAddressAPI(id) {
+  const res = await api.delete(`/addresses/${id}`);
+  return res;
+}
+
 export async function applyVoucherAPI(code) {
   const matched = voucherCatalog?.[code] || null;
   if (!matched) throw new Error('Mã giảm giá không hợp lệ.');

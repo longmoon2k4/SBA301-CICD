@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { Container, Row, Col, Button, Badge, Spinner, Alert } from 'react-bootstrap';
-import { GeoAlt, PlusLg, HouseDoor, CheckCircleFill } from 'react-bootstrap-icons';
-import { getAddressesAPI, addAddressAPI } from '../../checkout/services/checkoutService.js';
+import { GeoAlt, PlusLg, HouseDoor, CheckCircleFill, Trash } from 'react-bootstrap-icons';
+import { getAddressesAPI, addAddressAPI, deleteAddressAPI } from '../../checkout/services/checkoutService.js';
 import AddressFormModal from '../../checkout/components/AddressFormModal.jsx';
 
 export default function MyAddresses() {
@@ -38,6 +38,19 @@ export default function MyAddresses() {
     } catch (err) {
       console.error('Lỗi khi thêm địa chỉ mới:', err);
       alert('Lỗi khi thêm địa chỉ: ' + (err.response?.data?.message || err.message || 'Không thể thêm địa chỉ'));
+    }
+  };
+
+  const handleDeleteAddress = async (id, recipientName) => {
+    if (!window.confirm(`Bạn có chắc chắn muốn xóa địa chỉ của "${recipientName}" không?`)) {
+      return;
+    }
+    try {
+      await deleteAddressAPI(id);
+      fetchAddresses();
+    } catch (err) {
+      console.error('Lỗi khi xóa địa chỉ:', err);
+      alert('Lỗi khi xóa địa chỉ: ' + (err.response?.data?.message || err.message || 'Không thể xóa địa chỉ'));
     }
   };
 
@@ -104,11 +117,22 @@ export default function MyAddresses() {
                       <span className="fw-bold fs-5" style={{ fontFamily: 'Space Grotesk, sans-serif' }}>
                         {addr.recipientName}
                       </span>
-                      {addr.isDefault && (
-                        <Badge bg="dark" className="rounded-0 text-uppercase px-2 py-1 d-inline-flex align-items-center gap-1">
-                          <CheckCircleFill size={12} /> Mặc định
-                        </Badge>
-                      )}
+                      <div className="d-flex align-items-center gap-2">
+                        {addr.isDefault && (
+                          <Badge bg="dark" className="rounded-0 text-uppercase px-2 py-1 d-inline-flex align-items-center gap-1">
+                            <CheckCircleFill size={12} /> Mặc định
+                          </Badge>
+                        )}
+                        <Button
+                          variant="outline-danger"
+                          size="sm"
+                          className="rounded-0 p-1 d-inline-flex align-items-center justify-content-center"
+                          title="Xóa địa chỉ"
+                          onClick={() => handleDeleteAddress(addr.id, addr.recipientName)}
+                        >
+                          <Trash size={14} />
+                        </Button>
+                      </div>
                     </div>
 
                     <p className="mb-2 text-dark">

@@ -27,4 +27,10 @@ public class AddressController {
     public ResponseEntity<AddressDto> addAddress(@Valid @RequestBody AddressDto addressDto) {
         return ResponseEntity.ok(addressService.addAddress(addressDto));
     }
+
+    @DeleteMapping("/{id}")
+    public ResponseEntity<Void> deleteAddress(@PathVariable Long id) {
+        addressService.deleteAddress(id);
+        return ResponseEntity.noContent().build();
+    }
 }

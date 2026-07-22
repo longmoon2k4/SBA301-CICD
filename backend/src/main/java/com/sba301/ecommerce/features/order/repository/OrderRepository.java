@@ -13,6 +13,7 @@ import java.util.Optional;
 public interface OrderRepository extends JpaRepository<Order, Long> {
     List<Order> findByUserIdOrderByCreatedAtDesc(Long userId);
     Optional<Order> findByOrderCode(String orderCode);
+    boolean existsByShippingAddressId(Long shippingAddressId);
 
     @Query("SELECT o FROM Order o " +
            "LEFT JOIN FETCH o.items i " +
