@@ -23,8 +23,8 @@ public class OpenApiConfig {
                         .version("1.0")
                         .description("RESTful API Documentation for SBA301 E-Commerce System"))
                 .servers(List.of(
-                        new Server().url("https://api.smiledev.id.vn").description("Production HTTPS Server"),
-                        new Server().url("http://localhost:8080").description("Local Development Server")
+                        new Server().url("https://api.smiledev.id.vn/api/v1").description("Production HTTPS Server"),
+                        new Server().url("http://localhost:8080/api/v1").description("Local Development Server")
                 ))
                 .addSecurityItem(new SecurityRequirement().addList(securitySchemeName))
                 .components(new Components()
