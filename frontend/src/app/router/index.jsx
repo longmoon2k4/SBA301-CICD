@@ -29,6 +29,7 @@ import ProductDetail from '../../features/products/pages/ProductDetail';
 import CustomerProductDetail from '../../features/products/pages/CustomerProductDetail.jsx';
 import MyOrders from '../../features/orders/pages/MyOrders.jsx';
 import VNPayReturn from '../../features/checkout/components/VNPayReturn.jsx';
+import MyAddresses from '../../features/account/pages/MyAddresses.jsx';
 
 const teamFeatureRoutes = [
   { path: 'products', element: <ProductList /> },
@@ -40,6 +41,8 @@ const teamFeatureRoutes = [
   { path: 'checkout', element: <CheckoutLayout /> },
   { path: 'checkout/vnpay-return', element: <VNPayReturn /> },
   { path: 'my-orders', element: <MyOrders /> },
+  { path: 'account/addresses', element: <MyAddresses /> },
+  { path: 'account', element: <MyAddresses /> },
   { path: 'admin/dashboard', element: <Dashboard /> },
   { path: 'admin/products', element: <ProductList /> },
 
