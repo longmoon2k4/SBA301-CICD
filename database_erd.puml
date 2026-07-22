@@ -1,0 +1,338 @@
+@startuml SBA301_Ecommerce_Database_ERD
+!theme plain
+top to bottom direction
+skinparam linetype ortho
+skinparam monochrome false
+skinparam packageStyle rectangle
+skinparam shadowing false
+skinparam class {
+    BackgroundColor white
+    HeaderBackgroundColor #1E293B
+    HeaderFontColor white
+    BorderColor #334155
+    FontName "Segoe UI", Arial, sans-serif
+}
+
+' ==========================================
+' ENUM DEFINITIONS
+' ==========================================
+enum Role {
+    CUSTOMER
+    STAFF
+    ADMIN
+}
+
+enum OrderStatus {
+    PENDING
+    CONFIRMED
+    PROCESSING
+    SHIPPING
+    DELIVERED
+    COMPLETED
+    CANCELLED
+}
+
+enum OrderPaymentStatus {
+    UNPAID
+    PAID
+    REFUNDED
+}
+
+enum OrderChannel {
+    ONLINE
+    IN_STORE
+}
+
+enum ProductStatus {
+    DRAFT
+    ACTIVE
+    HIDDEN
+}
+
+enum PaymentMethod {
+    COD
+    VNPAY
+    MOMO
+    BANK_TRANSFER
+    CASH
+}
+
+enum PaymentTxnStatus {
+    PENDING
+    SUCCESS
+    FAILED
+    REFUNDED
+}
+
+' ==========================================
+' ENTITY DEFINITIONS
+' ==========================================
+
+package "User & Security Management" {
+    entity "users" as users {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * email : VARCHAR(190) <<UK>>
+        password_hash : VARCHAR(255)
+        * full_name : NVARCHAR(150)
+        phone : VARCHAR(20)
+        * role : Role <<ENUM>>
+        * status : VARCHAR(20)
+        * email_verified : BOOLEAN
+        email_verified_at : TIMESTAMP
+        last_login_at : TIMESTAMP
+        * failed_login_attempts : INT
+        locked_until : TIMESTAMP
+        deleted_at : DATETIME
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+
+    entity "addresses" as addresses {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * user_id : BIGINT <<FK>>
+        * recipient_name : NVARCHAR(150)
+        * phone : VARCHAR(20)
+        * province : NVARCHAR(100)
+        * district : NVARCHAR(100)
+        * ward : NVARCHAR(100)
+        * street : NVARCHAR(255)
+        * is_default : BOOLEAN
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+
+    entity "user_refresh_tokens" as user_refresh_tokens {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * user_id : BIGINT <<FK>>
+        * token : VARCHAR(255) <<UK>>
+        * expires_at : TIMESTAMP
+        * revoked : BOOLEAN
+        ip_address : VARCHAR(45)
+        user_agent : VARCHAR(500)
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+
+    entity "email_verification" as email_verification {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * user_id : BIGINT <<FK>>
+        * token : VARCHAR(255) <<UK>>
+        * verification_type : VARCHAR(50)
+        * expires_at : TIMESTAMP
+        used_at : TIMESTAMP
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+
+    entity "password_reset_tokens" as password_reset_tokens {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * user_id : BIGINT <<FK>>
+        * token : VARCHAR(255) <<UK>>
+        * expires_at : TIMESTAMP
+        used_at : TIMESTAMP
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+}
+
+package "Product Catalog Management" {
+    entity "categories" as categories {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        parent_id : BIGINT <<FK>>
+        * name : NVARCHAR(150)
+        * slug : VARCHAR(180) <<UK>>
+        description : NVARCHAR(1000)
+        * is_active : BOOLEAN
+        deleted_at : DATETIME
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+
+    entity "products" as products {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * category_id : BIGINT <<FK>>
+        * name : NVARCHAR(255)
+        * slug : VARCHAR(280) <<UK>>
+        description : NVARCHAR(4000)
+        brand : VARCHAR(100)
+        * base_price : DECIMAL(18,2)
+        * status : ProductStatus <<ENUM>>
+        deleted_at : DATETIME
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+
+    entity "product_variants" as product_variants {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * product_id : BIGINT <<FK>>
+        * sku : VARCHAR(100) <<UK>>
+        size : NVARCHAR(50)
+        color : NVARCHAR(50)
+        * price : DECIMAL(18,2)
+        * stock_quantity : INT
+        * is_active : BOOLEAN
+        * version : BIGINT <<Optimistic Lock>>
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+
+    entity "product_images" as product_images {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * product_id : BIGINT <<FK>>
+        * image_url : VARCHAR(500)
+        * display_order : INT
+        * is_primary : BOOLEAN
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+}
+
+package "Cart & Inventory Reservation" {
+    entity "carts" as carts {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * user_id : BIGINT <<FK, UK>>
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+
+    entity "cart_items" as cart_items {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * cart_id : BIGINT <<FK>>
+        * variant_id : BIGINT <<FK>>
+        * quantity : INT
+        * added_at : DATETIME
+    }
+
+    entity "inventory_reservations" as inventory_reservations {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * session_id : VARCHAR(64) <<UK>>
+        * user_id : BIGINT <<FK>>
+        * variant_id : BIGINT <<FK>>
+        * quantity : INT
+        * expires_at : DATETIME
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+}
+
+package "Order & Payment Management" {
+    entity "orders" as orders {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * order_code : VARCHAR(30) <<UK>>
+        * user_id : BIGINT <<FK>>
+        created_by_staff_id : BIGINT <<FK>>
+        shipping_address_id : BIGINT <<FK>>
+        * channel : OrderChannel <<ENUM>>
+        * subtotal : DECIMAL(18,2)
+        * shipping_fee : DECIMAL(18,2)
+        * total_amount : DECIMAL(18,2)
+        * status : OrderStatus <<ENUM>>
+        * payment_status : OrderPaymentStatus <<ENUM>>
+        note : NVARCHAR(500)
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+
+    entity "order_items" as order_items {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * order_id : BIGINT <<FK>>
+        * variant_id : BIGINT <<FK>>
+        * product_name : NVARCHAR(255)
+        * variant_info : NVARCHAR(100)
+        * unit_price : DECIMAL(18,2)
+        * quantity : INT
+        * subtotal : DECIMAL(18,2)
+    }
+
+    entity "payments" as payments {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * order_id : BIGINT <<FK>>
+        * method : PaymentMethod <<ENUM>>
+        * amount : DECIMAL(18,2)
+        * status : PaymentTxnStatus <<ENUM>>
+        transaction_code : VARCHAR(100)
+        response_code : VARCHAR(50)
+        pay_date : TIMESTAMP
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+
+    entity "reviews" as reviews {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        * user_id : BIGINT <<FK>>
+        * product_id : BIGINT <<FK>>
+        order_id : BIGINT <<FK>>
+        * rating : INT
+        comment : NVARCHAR(2000)
+        is_visible : BOOLEAN
+        * created_at : DATETIME
+        * updated_at : DATETIME
+    }
+}
+
+package "Audit & Logging System" {
+    entity "audit_logs" as audit_logs {
+        * id : BIGINT <<PK, AUTO_INCREMENT>>
+        --
+        user_id : BIGINT <<FK>>
+        * action : VARCHAR(100)
+        * entity_name : VARCHAR(100)
+        entity_id : BIGINT
+        old_value : NVARCHAR(4000)
+        new_value : NVARCHAR(4000)
+        ip_address : VARCHAR(45)
+        user_agent : VARCHAR(500)
+        * created_at : DATETIME
+    }
+}
+
+' ==========================================
+' RELATIONSHIPS & FOREIGN KEYS
+' ==========================================
+
+users ||--o{ addresses : "has (1:N)"
+users ||--o{ user_refresh_tokens : "owns (1:N)"
+users ||--o{ email_verification : "receives (1:N)"
+users ||--o{ password_reset_tokens : "requests (1:N)"
+users ||--|| carts : "has (1:1)"
+users ||--o{ inventory_reservations : "reserves (1:N)"
+users ||--o{ orders : "places (1:N)"
+users ||--o{ orders : "staff creates (1:N)"
+users ||--o{ reviews : "writes (1:N)"
+users ||--o{ audit_logs : "triggers (1:N)"
+
+categories ||--o{ categories : "parent of (1:N)"
+categories ||--o{ products : "contains (1:N)"
+
+products ||--o{ product_variants : "has variants (1:N)"
+products ||--o{ product_images : "has images (1:N)"
+products ||--o{ reviews : "has reviews (1:N)"
+
+product_variants ||--o{ cart_items : "in (1:N)"
+product_variants ||--o{ inventory_reservations : "reserved in (1:N)"
+product_variants ||--o{ order_items : "purchased in (1:N)"
+
+carts ||--o{ cart_items : "contains (1:N)"
+
+orders ||--o{ order_items : "contains (1:N)"
+orders ||--o{ payments : "paid via (1:N)"
+orders ||--o{ reviews : "reviewed in (1:N)"
+addresses ||--o{ orders : "shipped to (1:N)"
+
+@enduml
